@@ -1,12 +1,12 @@
 Personal Project
-# SQL Data Exploration
+# SQL Data Exploration - Chinook Online Music Store
 I go through the data for an online music store covering sales of music albums/songs done by different artists across different countries. I gather different insights by quering data from the different databases which were created from a file that I have also attached in this file.
 
-## SQL Analysis - Online Music Store
+## SQL Analysis
 #### Years represented in the data - The data runs from 2021 to 2025
 
 1. Revenue Per Year, Month, Quarter
-    -- 2022 leads in sales by revenue, closely followed by 2024, 2023, 2025, 2021 respectively
+    - 2022 leads in sales by revenue, closely followed by 2024, 2023, 2025, 2021 respectively
     ```sql
     SELECT YEAR(InvoiceDate) rev_year, SUM(Total) total_rev
     FROM invoice
@@ -15,7 +15,7 @@ I go through the data for an online music store covering sales of music albums/s
     ```
 
     ![alt text](Assets/image-1.png)
-    -- Percentage-wise, they are all close with the biggest difference being ~ 1.3 %
+    - Percentage-wise, they are all close with the biggest difference being ~ 1.3 %
     ```sql
     SELECT 
         YEAR(InvoiceDate) rev_year, 
@@ -27,8 +27,8 @@ I go through the data for an online music store covering sales of music albums/s
     ```
 
     ![alt text](Assets/image.png)
-2. Which Countries contribute most to total sales
-    -- USA Generated most sales by revenue - leading by 22% of the total revenue, followed by Canada with 13%
+3. Which Countries contribute most to total sales
+    - USA Generated most sales by revenue - leading by 22% of the total revenue, followed by Canada with 13%
     ```sql
     SELECT 
         t2.Country, 
@@ -43,86 +43,86 @@ I go through the data for an online music store covering sales of music albums/s
 
     ![alt text](Assets/image-2.png)
 
-    -- The top 2 countries every year remain to be USA Canada except for one year, 2024, where Canada was beaten by Brazil and became third. 
-    -- Position 3 is not consistent over the years since the there is a variation in the countries appearing in that position over the years
-    -- Brazil has appeared twice in the top 3 over the years
-    ```sql
-    WITH top3CountriesYearly AS
-    (
-    SELECT 
-        YEAR(t1.InvoiceDate) `year`,
-        t2.Country,
-        SUM(t1.Total) total_rev,
-        RANK() OVER(PARTITION BY YEAR(t1.InvoiceDate) ORDER BY SUM(t1.Total) DESC) rev_rank
-    FROM invoice t1
-    JOIN customer t2
-        ON t1.CustomerId = t2.CustomerId
-    GROUP BY `year`, t2.Country
-    )
-    SELECT * 
-    FROM top3CountriesYearly
-    WHERE rev_rank <= 3
-    ; 
-    ```
+    - The top 2 countries every year remain to be USA Canada except for one year, 2024, where Canada was beaten by Brazil and became third. 
+        - Position 3 is not consistent over the years since the there is a variation in the countries appearing in that position over the years
+        - Brazil has appeared twice in the top 3 over the years
+        ```sql
+        WITH top3CountriesYearly AS
+        (
+        SELECT 
+            YEAR(t1.InvoiceDate) `year`,
+            t2.Country,
+            SUM(t1.Total) total_rev,
+            RANK() OVER(PARTITION BY YEAR(t1.InvoiceDate) ORDER BY SUM(t1.Total) DESC) rev_rank
+        FROM invoice t1
+        JOIN customer t2
+            ON t1.CustomerId = t2.CustomerId
+        GROUP BY `year`, t2.Country
+        )
+        SELECT * 
+        FROM top3CountriesYearly
+        WHERE rev_rank <= 3
+        ; 
+        ```
 
-    ![alt text](Assets/image-3.png)
+        ![alt text](Assets/image-3.png)
     - Item Purchases by Country
-    -- Top 3 countries leading in sales by item count generally are: USA, Canada, Brazil and France - A tie in Brazil and France
-    ```sql
-    SELECT
-        t2.Country,
-        SUM(t3.Quantity) items_count
-    FROM invoice t1
-    JOIN customer t2
-        ON t1.CustomerId = t2.CustomerId
-    JOIN invoiceline t3
-        ON t1.InvoiceId = t3.InvoiceId
-    GROUP BY t2.Country
-    ORDER BY items_count DESC;
-    ```
-    ![alt text](Assets/image-4.png)
+        - Top 3 countries leading in sales by item count generally are: USA, Canada, Brazil and France - A tie in Brazil and France
+        ```sql
+        SELECT
+            t2.Country,
+            SUM(t3.Quantity) items_count
+        FROM invoice t1
+        JOIN customer t2
+            ON t1.CustomerId = t2.CustomerId
+        JOIN invoiceline t3
+            ON t1.InvoiceId = t3.InvoiceId
+        GROUP BY t2.Country
+        ORDER BY items_count DESC;
+        ```
+        ![alt text](Assets/image-4.png)
     
-    -- Going down to yearly breakdown, the top 3 ranking in items count resembles the top 3 ranking by revenue generated over the years, except for the year 2022 where Brazil and France rank as third - A tie.
-    ```sql
-    WITH top3CountriesYearlyPurchases AS
-    (
-    SELECT 
-        YEAR(t1.InvoiceDate) `year`,
-        t2.Country,
-        SUM(t3.Quantity) items_count,
-        RANK() OVER(PARTITION BY YEAR(t1.InvoiceDate) ORDER BY SUM(t3.Quantity) DESC) items_purchased_rank
-    FROM invoice t1
-    JOIN customer t2
-        ON t1.CustomerId = t2.CustomerId
-    JOIN invoiceline t3
-        ON t1.InvoiceId = t3.InvoiceId
-    GROUP BY `year`, t2.Country
-    )
-    SELECT * 
-    FROM top3CountriesYearlyPurchases
-    WHERE items_purchased_rank <= 3
-    ;
-    ```
-    ![alt text](Assets/image-5.png)
+    - Going down to yearly breakdown, the top 3 ranking in items count resembles the top 3 ranking by revenue generated over the years, except for the year 2022 where Brazil and France rank as third - A tie.
+        ```sql
+        WITH top3CountriesYearlyPurchases AS
+        (
+        SELECT 
+            YEAR(t1.InvoiceDate) `year`,
+            t2.Country,
+            SUM(t3.Quantity) items_count,
+            RANK() OVER(PARTITION BY YEAR(t1.InvoiceDate) ORDER BY SUM(t3.Quantity) DESC) items_purchased_rank
+        FROM invoice t1
+        JOIN customer t2
+            ON t1.CustomerId = t2.CustomerId
+        JOIN invoiceline t3
+            ON t1.InvoiceId = t3.InvoiceId
+        GROUP BY `year`, t2.Country
+        )
+        SELECT * 
+        FROM top3CountriesYearlyPurchases
+        WHERE items_purchased_rank <= 3
+        ;
+        ```
+        ![alt text](Assets/image-5.png)
 
     - Customers Count by Country
-    -- Rank: USA leads, Canada follows, Brazil and France tie at number 3
-    ```sql
-    SELECT
-        t2.Country,
-        COUNT(t2.CustomerId) customers_count
-    FROM invoice t1
-    JOIN customer t2
-        ON t1.CustomerId = t2.CustomerId
-    GROUP BY t2.Country
-    ORDER BY customers_count DESC;
-    ```
-
-    ![alt text](Assets/image-6.png)
+        - Rank: USA leads, Canada follows, Brazil and France tie at number 3
+        ```sql
+        SELECT
+            t2.Country,
+            COUNT(t2.CustomerId) customers_count
+        FROM invoice t1
+        JOIN customer t2
+            ON t1.CustomerId = t2.CustomerId
+        GROUP BY t2.Country
+        ORDER BY customers_count DESC;
+        ```
+    
+        ![alt text](Assets/image-6.png)
 3. Which artists, albums or genres generated the most revenue
-    -- No. of Artists: 275
-    -- No. of Albums: 347
-    -- No. of Genres: 25
+    - No. of Artists: 275
+    - No. of Albums: 347
+    - No. of Genres: 25
     ```sql
     -- No. of Artists
     SELECT COUNT(*) FROM artist; -- 275 Artists
@@ -135,7 +135,7 @@ I go through the data for an online music store covering sales of music albums/s
     ![alt text](Assets/image-7.png)    ![alt text](Assets/image-8.png)    ![alt text](Assets/image-9.png)
 
     #### Which artist had the most albums
-    -- Top 5 Artists by Albums: 'Iron Maiden' , 'Led Zeppelin', 'Deep Purple', 'Metallica', 'U2'
+    - Top 5 Artists by Albums: 'Iron Maiden' , 'Led Zeppelin', 'Deep Purple', 'Metallica', 'U2'
     ```sql
     SELECT t1.`Name`, COUNT(t2.Title) AlbumTitle
     FROM artist t1
@@ -277,3 +277,5 @@ I go through the data for an online music store covering sales of music albums/s
     ```
 
     ![alt text](Assets/image-17.png)
+
+The file containing the sql queries to create the files is attached in this repo as `Chinook_MySql.sql` and was gotten from [lechora](https://github.com/lerocha/chinook-database/releases/download/v1.4.5/Chinook_Oracle.sql).
